@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.0.6</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.cosangatha.bakery</groupId>
+	<artifactId>gatewayserver</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>gatewayserver</name>
+	<description>Spring Cloud API Gateway</description>
+	<properties>
+		<java.version>17</java.version>
+		<spring-cloud.version>2022.0.2</spring-cloud.version>
+		<docker.image.prefix>cosangtha</docker.image.prefix>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.26</version>
+		</dependency>
+
+
+		<!--		Distributed tracing -->
+
+		<!--		Adds tracing information to HTTP request (deprecated using micrometer) -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.cloud</groupId>-->
+		<!--			<artifactId>spring-cloud-starter-sleuth</artifactId>-->
+		<!--			<version>3.1.7</version>-->
+		<!--		</dependency>-->
+
+		<!-- Pulls in micrometer code for making Observations -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-observation</artifactId>
+		</dependency>
+
+		<!--		Micrometer tracing facade along with glue code to use Brave (the tracing/instrumentation solution from zipkin )  -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+
+		<!--		Adapt Zipkin with Brave ( Sends traces to zipkin )-->
+		<dependency>
+			<groupId>io.zipkin.reporter2</groupId>
+			<artifactId>zipkin-reporter-brave</artifactId>
+			<version>2.16.3</version>
+		</dependency>
+
+	<!--		End Distributed tracing-->
+
+
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>net.java.dev.jna</groupId>
+				<artifactId>jna</artifactId>
+				<version>5.7.0</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- plugin to generate docker image -->
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.6</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.github.jnr</groupId>
+						<artifactId>jnr-unixsocket</artifactId>
+						<version>0.38.17</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<repository>${docker.image.prefix}/${project.artifactId}</repository>
+					<tag>${project.version}</tag>
+					<buildArgs>
+						<!--						set the jar file location that will be used in the dockerfile -->
+						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>install</phase>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
+
+
+		</plugins>
+	</build>
+	<repositories>
+		<repository>
+			<id>netflix-candidates</id>
+			<name>Netflix Candidates</name>
+			<url>https://artifactory-oss.prod.netflix.net/artifactory/maven-oss-candidates</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+</project>

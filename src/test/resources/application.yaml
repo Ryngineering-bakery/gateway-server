@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: gateway-server
+  config:
+    import: "optional:configserver:"
+  cloud:
+    discovery:
+      enabled: false
